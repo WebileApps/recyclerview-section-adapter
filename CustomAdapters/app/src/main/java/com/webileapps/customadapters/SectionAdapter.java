@@ -1,11 +1,9 @@
 package com.webileapps.customadapters;
 
-import android.content.Context;
-import android.view.LayoutInflater;
+import android.database.DataSetObserver;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,55 +11,39 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by PraveenKatha on 08/07/15.
+ * Created by PraveenKatha on 13/07/15.
  */
-public abstract class SectionAdapter<T> extends BaseAdapter {
+public abstract class SectionAdapter extends BaseAdapter {
 
-    private final int sectionTvId;
-    private final int sectionLayoutId;
-    private final LayoutInflater inflater;
+    private final BaseAdapter wrappedAdapter;
     private Map<Integer, Section> sections;
-    private int actualDataSize;
 
 
-    protected abstract int getIndexOfSection(T object);
+    protected abstract int getIndexOfSection(Object object);
 
     protected abstract String getSectionText(int sectionIndex);
 
-    protected abstract View getListItemView(T object, ViewGroup parent);
 
-
-    public SectionAdapter(Context context, List<T> data, int sectionLayoutId, int sectionTvId) {
-        this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.sectionLayoutId = sectionLayoutId;
-        this.sectionTvId = sectionTvId;
-        initSections(data);
+    public SectionAdapter(BaseAdapter wrappedAdapter) {
+        this.wrappedAdapter = wrappedAdapter;
+        wrappedAdapter.registerDataSetObserver(mObserver);
+        initSections();
     }
 
-    public SectionAdapter(Context context,int sectionLayoutId, int sectionTvId) {
-        this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.sectionLayoutId = sectionLayoutId;
-        this.sectionTvId = sectionTvId;
-        sections = new HashMap<>();
-    }
 
-    public void setData(List<T> data) {
-        initSections(data);
-        notifyDataSetChanged();
-    }
-
-    private void initSections(List<T> data) {
-        actualDataSize = data.size();
+    private void initSections() {
+        //actualDataSize = wrappedAdapter.getCount();
         int sectionIndex;
         Section newSection;
         sections = new HashMap<>();
-        for (T object : data) {
+        for (int i = 0; i < wrappedAdapter.getCount() ; i++) {
+            Object object = wrappedAdapter.getItem(i);
             sectionIndex = getIndexOfSection(object);
             if (sections.containsKey(sectionIndex))
-                sections.get(sectionIndex).addObject(object);
+                sections.get(sectionIndex).addObjectIndex(i);
             else {
                 newSection = new Section();
-                newSection.addObject(object);
+                newSection.addObjectIndex(i);
                 sections.put(sectionIndex, newSection);
             }
         }
@@ -77,10 +59,31 @@ public abstract class SectionAdapter<T> extends BaseAdapter {
         }
     }
 
+    DataSetObserver mObserver = new DataSetObserver() {
+        @Override
+        public void onChanged() {
+            super.onChanged();
+            notifyDataSetChanged();
+        }
+    };
+
+    /*@Override
+    public void registerDataSetObserver(DataSetObserver observer) {
+        if(wrappedAdapter != null) {
+            wrappedAdapter.registerDataSetObserver(observer);
+        }
+    }
+
+    @Override
+    public void unregisterDataSetObserver(DataSetObserver observer) {
+        if(wrappedAdapter!=null) {
+            wrappedAdapter.unregisterDataSetObserver(observer);
+        }
+    }*/
 
     @Override
     public int getCount() {
-        return sections.size() + actualDataSize;
+        return sections.size() + wrappedAdapter.getCount();
     }
 
     @Override
@@ -105,75 +108,59 @@ public abstract class SectionAdapter<T> extends BaseAdapter {
         return -1;
     }
 
-    private T getObject(int position) {
+    private int getActualPosition(int position) {
         Section currSection;
-        Section prevSection = null;
+        int currSectionSize;
         for(int key : sections.keySet()) {
+            position--;
             currSection = sections.get(key);
-            if(currSection.getIndexOfSectionInList() > position)
-                break;
-            prevSection = currSection;
+            currSectionSize = currSection.getSize();
+
+            if(position < currSectionSize) {
+                return currSection.getObjectIndex(position);
+            }
+
+            position -= currSectionSize;
         }
-        return prevSection.getObject(position);
+        return -1;
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        initSections();
+        super.notifyDataSetChanged();
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        int section = getSectionIndexInList(position);
+        int sectionIndex = getSectionIndexInList(position);
 
-        /*if (convertView != null) {
-            return convertView;
-        }*/
-
-        if (section == -1) {
-            return getListItemView(getObject(position), parent);
+        if (sectionIndex == -1) {
+            return wrappedAdapter.getView(getActualPosition(position),convertView, parent);
         } else {
-            return getSectionView(section, parent);
+            return getSectionView(sectionIndex, getSectionText(sectionIndex),convertView, parent);
         }
 
     }
 
-    public LayoutInflater getInflater() {
-        return inflater;
-    }
-
-    private View getSectionView(int sectionIndex, ViewGroup parent) {
-
-        View sectionView = inflater.inflate(sectionLayoutId, parent, false);
-        TextView tv = (TextView) sectionView.findViewById(sectionTvId);
-        tv.setText(getSectionText(sectionIndex));
-
-        return sectionView;
-    }
+    protected abstract View getSectionView(int sectionIndex, String sectionText, View convertView , ViewGroup parent);
 
     class Section {
 
-        private List<T> sectionData;
         private int listIndex;
+        private List<Integer> objectIndexes;
 
         public Section() {
-            sectionData = new ArrayList<>();
+            objectIndexes = new ArrayList<>();
         }
 
-        public void addObject(T object) {
-            sectionData.add(object);
+        public void addObjectIndex(int objectIndex) {
+            objectIndexes.add(objectIndex);
         }
 
-        public List<T> getSectionData() {
-            return sectionData;
-        }
-
-        public int getSize() {
-            return sectionData.size();
-        }
-
-        public T getObjectInSection (int index) {
-            return sectionData.get(index);
-        }
-
-        public T getObject(int indexInList) {
-            return getObjectInSection(indexInList - listIndex -1);
+        public int getObjectIndex(int position) {
+            return objectIndexes.get(position);
         }
 
         public void setListIndex(int listIndex) {
@@ -182,6 +169,10 @@ public abstract class SectionAdapter<T> extends BaseAdapter {
 
         public int getIndexOfSectionInList() {
             return listIndex;
+        }
+
+        public int getSize() {
+            return objectIndexes.size();
         }
     }
 
