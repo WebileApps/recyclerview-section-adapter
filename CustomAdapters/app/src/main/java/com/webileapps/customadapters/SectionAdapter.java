@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,12 +18,23 @@ public abstract class SectionAdapter extends BaseAdapter {
 
     private final BaseAdapter wrappedAdapter;
     private Map<Integer, Section> sections;
-
+    private List<Integer> sectionIndices;
 
     protected abstract int getIndexOfSection(Object object);
 
     protected abstract String getSectionText(int sectionIndex);
 
+    /**
+     * Returns Header view for each section
+     *
+     * @param sectionIndex Index of section
+     * @param sectionText  Section text
+     * @param convertView
+     * @param parent
+     * @return
+     */
+
+    protected abstract View getSectionView(int sectionIndex, String sectionText, View convertView, ViewGroup parent);
 
     public SectionAdapter(BaseAdapter wrappedAdapter) {
         this.wrappedAdapter = wrappedAdapter;
@@ -35,8 +47,11 @@ public abstract class SectionAdapter extends BaseAdapter {
         //actualDataSize = wrappedAdapter.getCount();
         int sectionIndex;
         Section newSection;
+        if (sections != null) {
+            sections.clear();
+        }
         sections = new HashMap<>();
-        for (int i = 0; i < wrappedAdapter.getCount() ; i++) {
+        for (int i = 0; i < wrappedAdapter.getCount(); i++) {
             Object object = wrappedAdapter.getItem(i);
             sectionIndex = getIndexOfSection(object);
             if (sections.containsKey(sectionIndex))
@@ -51,8 +66,15 @@ public abstract class SectionAdapter extends BaseAdapter {
     }
 
     private void initSectionIndexesInList() {
+
+        if(sectionIndices!=null)
+            sectionIndices.clear();
+
+        sectionIndices = new ArrayList<>(sections.keySet());
+        Collections.sort(sectionIndices);
+
         int sectionPositionInList = 0;
-        for (int key : sections.keySet()) {
+        for (int key : sectionIndices) {
             Section section = sections.get(key);
             section.setListIndex(sectionPositionInList);
             sectionPositionInList += section.getSize() + 1;
@@ -66,20 +88,6 @@ public abstract class SectionAdapter extends BaseAdapter {
             notifyDataSetChanged();
         }
     };
-
-    /*@Override
-    public void registerDataSetObserver(DataSetObserver observer) {
-        if(wrappedAdapter != null) {
-            wrappedAdapter.registerDataSetObserver(observer);
-        }
-    }
-
-    @Override
-    public void unregisterDataSetObserver(DataSetObserver observer) {
-        if(wrappedAdapter!=null) {
-            wrappedAdapter.unregisterDataSetObserver(observer);
-        }
-    }*/
 
     @Override
     public int getCount() {
@@ -98,7 +106,8 @@ public abstract class SectionAdapter extends BaseAdapter {
 
     private int getSectionIndexInList(int position) {
         int sectionIndex;
-        for (int key : sections.keySet()) {
+
+        for (int key : sectionIndices) {
             sectionIndex = sections.get(key).getIndexOfSectionInList();
             if (sectionIndex == position)
                 return key;
@@ -111,12 +120,12 @@ public abstract class SectionAdapter extends BaseAdapter {
     private int getActualPosition(int position) {
         Section currSection;
         int currSectionSize;
-        for(int key : sections.keySet()) {
+        for (int key : sectionIndices) {
             position--;
             currSection = sections.get(key);
             currSectionSize = currSection.getSize();
 
-            if(position < currSectionSize) {
+            if (position < currSectionSize) {
                 return currSection.getObjectIndex(position);
             }
 
@@ -137,14 +146,12 @@ public abstract class SectionAdapter extends BaseAdapter {
         int sectionIndex = getSectionIndexInList(position);
 
         if (sectionIndex == -1) {
-            return wrappedAdapter.getView(getActualPosition(position),convertView, parent);
+            return wrappedAdapter.getView(getActualPosition(position), convertView, parent);
         } else {
-            return getSectionView(sectionIndex, getSectionText(sectionIndex),convertView, parent);
+            return getSectionView(sectionIndex, getSectionText(sectionIndex), convertView, parent);
         }
 
     }
-
-    protected abstract View getSectionView(int sectionIndex, String sectionText, View convertView , ViewGroup parent);
 
     class Section {
 

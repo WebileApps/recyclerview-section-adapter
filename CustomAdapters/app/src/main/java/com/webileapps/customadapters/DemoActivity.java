@@ -4,55 +4,50 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import com.android.volley.Response;
-import com.squareup.picasso.Picasso;
 import com.webileapps.volleypoc.com.webileapps.volleypoc.request.GsonRequest;
 import com.webileapps.volleypoc.com.webileapps.volleypoc.singleton.VolleySingleton;
 import com.webileapps.volleypoc.com.webileapps.volleypoc.utils.StringUtils;
 import com.webileapps.volleypoc.com.webileapps.volleypoc.utils.Url;
 
-import java.util.List;
 
-
-public class DemoActivity extends AppCompatActivity {
+public class DemoActivity extends AppCompatActivity implements PlacesFragment.ActivityCommunicator {
 
     public final String baseUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=AIzaSyDLH3Is2COdpFAC-lKbvzOusqo0ygKHvmw";
     private SimpleSectionAdapter<Place> moviesAdapter;
     private String url;
-    private SectionAdapter placesSectionAdapter;
-    private PlaceAdapter placesAdapter;
-
+    private String[] place_types;
+    private String[] place_types_text;
+    private PlacesFragment placesFragment;
+    private PlacesFragment recyclerFragment;
+    private PlacesFragment listViewFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_demo);
 
+        listViewFragment = new ListViewFragment();
+        recyclerFragment = new RecyclerViewFragment();
+
+        getSupportFragmentManager().beginTransaction().add(R.id.fragment,listViewFragment).commit();
+
+        placesFragment = listViewFragment;
         String location = "17.4416,78.3826";
 
-        final String[] place_types = {"hospital", "bakery", "beauty_salon", "shopping_mall", "home_goods_store", "movie_theatre"};
-        final String[] place_types_text = {"HOSPITAL", "BAKERY", "BEAUTY SALON", "SHOPPING MALL", "HOME GOODS STORE", "MOVIE THEATRE"};
-
+        place_types = new String[]{"hospital", "bakery", "beauty_salon", "shopping_mall", "home_goods_store", "movie_theatre"};
+        place_types_text = new String[]{"HOSPITAL", "BAKERY", "BEAUTY SALON", "SHOPPING MALL", "HOME GOODS STORE", "MOVIE THEATRE"};
 
         url = Url.buildUrl(baseUrl)
                 .addParameter("location", location)
                 .addParameter("radius", "50000")
                 .addParameter("types", StringUtils.join(place_types, "|")).toString();
 
-
-        ListView lv = (ListView) findViewById(R.id.list_view);
-        View headerView = getLayoutInflater().inflate(R.layout.header, null);
-
-        EditText et = (EditText) headerView.findViewById(R.id.movie_name);
+        EditText et = (EditText) findViewById(R.id.movie_name);
         et.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -69,128 +64,58 @@ public class DemoActivity extends AppCompatActivity {
         });
 
 
-        lv.addHeaderView(headerView);
-
-        /*moviesAdapter = new SimpleSectionAdapter<Place>(getApplicationContext(),
-                R.layout.section_item, R.id.section_name) {
-
-
-            @Override
-            protected int getIndexOfSection(Place object) {
-                for (int i = 0; i < place_types.length; i++) {
-                    if (object.types.contains(place_types[i]))
-                        return i;
-                }
-                return -1;
-            }
-
-            @Override
-            protected String getSectionText(int sectionIndex) {
-                return place_types_text[sectionIndex];
-            }
-
-            @Override
-            protected View getListItemView(Place object, ViewGroup parent) {
-                View v = getInflater().inflate(R.layout.list_item, parent, false);
-                TextView tv = (TextView) v.findViewById(R.id.name);
-                tv.setText(object.name);
-                ImageView iv = (ImageView) v.findViewById(R.id.icon);
-                Picasso.with(getApplicationContext()).load(object.icon).fit().centerInside().into(iv);
-
-                return v;
-            }
-        }*/;
-
-        placesAdapter = new PlaceAdapter();
-
-        placesSectionAdapter = new SectionAdapter(placesAdapter) {
-
-            @Override
-            protected int getIndexOfSection(Object object) {
-                for (int i = 0; i < place_types.length; i++) {
-                    if (((Place) object).types.contains(place_types[i]))
-                        return i;
-                }
-                return -1;
-            }
-
-
-            @Override
-            protected String getSectionText(int sectionIndex) {
-                return place_types_text[sectionIndex];
-            }
-
-            @Override
-            protected View getSectionView(int sectionIndex, String sectionText, View convertView, ViewGroup parent) {
-                LayoutInflater inflater = getLayoutInflater();
-                View v = inflater.inflate(R.layout.section_item, parent, false);
-                TextView tv = (TextView) v.findViewById(R.id.section_name);
-                tv.setText(sectionText);
-                return v;
-            }
-
-        };
-
-        lv.setAdapter(placesSectionAdapter);
     }
 
-    private void searchPlace(String place) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_menu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.recycler_view_btn:
+                placesFragment = recyclerFragment;
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment,recyclerFragment).commit();
+                break;
+            case R.id.list_view_btn:
+                placesFragment = listViewFragment;
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment,listViewFragment).commit();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void searchPlace(String place) {
 
         String searchUrl = Url.buildUrl(url).addParameter("name", place).toString();
         System.out.println("Search Place Url " + searchUrl);
-        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(new GsonRequest<>(searchUrl, PlaceResults.class, null,
+
+        GsonRequest req = new GsonRequest<>(searchUrl, PlaceResults.class, null,
                 new Response.Listener<PlaceResults>() {
                     @Override
                     public void onResponse(PlaceResults placeResults) {
-
                         System.out.println(placeResults.results.size());
-                        placesAdapter.setData(placeResults.results);
+                        placesFragment.setData(placeResults.results);
                         //placesAdapter.notifyDataSetChanged();
                     }
-                }, null));
+                }, null);
+
+        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(req);
 
     }
 
-
-    class PlaceAdapter extends BaseAdapter {
-
-        List<Place> places;
-
-        public void setData(List<Place> places) {
-            this.places = places;
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public int getCount() {
-            if(places == null) {
-                return 0;
-            }
-            return places.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return places.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            LayoutInflater inflater = getLayoutInflater();
-            View v = inflater.inflate(R.layout.list_item, parent, false);
-            TextView tv = (TextView) v.findViewById(R.id.name);
-            tv.setText(places.get(position).name);
-            ImageView iv = (ImageView) v.findViewById(R.id.icon);
-            Picasso.with(getApplicationContext()).load(places.get(position).icon).fit().centerInside().into(iv);
-
-            return v;
-        }
+    @Override
+    public String[] getPlaceTypes() {
+        return place_types;
     }
 
+    @Override
+    public String[] getPlaceTypesText() {
+        return place_types_text;
+    }
 }
 
