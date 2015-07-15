@@ -3,7 +3,7 @@ package com.webileapps.volleypoc.com.webileapps.volleypoc.utils;
 /**
  * Created by PraveenKatha on 09/07/15.
  */
-public class StringUtils {
+public class ArrayUtils {
 
     public static String join(String[] array, String delimeter) {
         StringBuilder sb = new StringBuilder();

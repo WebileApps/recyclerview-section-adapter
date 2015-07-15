@@ -11,7 +11,7 @@ import android.widget.EditText;
 import com.android.volley.Response;
 import com.webileapps.volleypoc.com.webileapps.volleypoc.request.GsonRequest;
 import com.webileapps.volleypoc.com.webileapps.volleypoc.singleton.VolleySingleton;
-import com.webileapps.volleypoc.com.webileapps.volleypoc.utils.StringUtils;
+import com.webileapps.volleypoc.com.webileapps.volleypoc.utils.ArrayUtils;
 import com.webileapps.volleypoc.com.webileapps.volleypoc.utils.Url;
 
 
@@ -45,7 +45,7 @@ public class DemoActivity extends AppCompatActivity implements PlacesFragment.Ac
         url = Url.buildUrl(baseUrl)
                 .addParameter("location", location)
                 .addParameter("radius", "50000")
-                .addParameter("types", StringUtils.join(place_types, "|")).toString();
+                .addParameter("types", ArrayUtils.join(place_types, "|")).toString();
 
         EditText et = (EditText) findViewById(R.id.movie_name);
         et.addTextChangedListener(new TextWatcher() {
