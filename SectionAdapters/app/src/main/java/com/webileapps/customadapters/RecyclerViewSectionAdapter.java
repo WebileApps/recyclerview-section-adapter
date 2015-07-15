@@ -24,12 +24,24 @@ public abstract class RecyclerViewSectionAdapter<RowAdapter extends RecyclerView
     private List<Integer> sectionIndices;
 
 
+
+    /**
+     * Get the index of section to which the object belongs
+     * @param object data item associated with the row inflation
+     * @return returns the index of section
+     */
     public abstract int getIndexOfSection(Object object);
 
-    public RecyclerViewSectionAdapter(RecyclerView.Adapter mSectionHeaderAdapter, RowAdapter mListAdapter) {
+    /**
+     *  Constructs section adapter for recycler view adapter
+     * @param sectionHeaderAdapter Adapter for section header view
+     * @param rowAdapter Adapter {@link android.support.v7.widget.RecyclerView.Adapter,com.webileapps.customadapters.RecyclerViewSectionAdapter.GetObject}
+     *                   to be sectioned
+     */
+    public RecyclerViewSectionAdapter(RecyclerView.Adapter sectionHeaderAdapter, RowAdapter rowAdapter) {
 
-        this.mSectionHeaderAdapter = mSectionHeaderAdapter;
-        this.mRowAdapter = mListAdapter;
+        this.mSectionHeaderAdapter = sectionHeaderAdapter;
+        this.mRowAdapter = rowAdapter;
         this.mDataObserver = new RecyclerView.AdapterDataObserver() {
             @Override
             public void onChanged() {
@@ -140,6 +152,15 @@ public abstract class RecyclerViewSectionAdapter<RowAdapter extends RecyclerView
     }
 
     public interface GetObject {
+
+        /**
+         * Get the data item associated with the specified position in the data set.
+         *
+         * @param position Position of the item whose data we want within the adapter's
+         * data set.
+         * @return The data at the specified position.
+         */
+
         Object getObject(int position);
     }
 }

@@ -20,22 +20,37 @@ public abstract class SectionAdapter extends BaseAdapter {
     private Map<Integer, Section> sections;
     private List<Integer> sectionIndices;
 
+    /**
+     * Get the index of section to which the object belongs
+     * @param object data item associated with the row inflation
+     * @return returns the index of section
+     */
     protected abstract int getIndexOfSection(Object object);
 
+    /**
+     * Get the section header text of section having specified section index
+     * @param sectionIndex
+     * @return Returns Section header text
+     */
     protected abstract String getSectionText(int sectionIndex);
 
     /**
-     * Returns Header view for each section
+     * Returns View corresponding to section header corresponding to section having specified section index
      *
-     * @param sectionIndex Index of section
-     * @param sectionText  Section text
-     * @param convertView
-     * @param parent
-     * @return
+     * @param sectionIndex The position of section among the sections associated with adapter
+     * @param sectionText  Section text associated with section
+     * @param convertView The old view to reuse if possible
+     * @param parent The parent view that this view will attach to
+     * @return View corresponding to section header
      */
 
     protected abstract View getSectionView(int sectionIndex, String sectionText, View convertView, ViewGroup parent);
 
+
+    /**
+     *  Constructs Section Adapter
+     * @param wrappedAdapter listAdapter A {@link BaseAdapter} that has to be sectioned.
+     */
     public SectionAdapter(BaseAdapter wrappedAdapter) {
         this.wrappedAdapter = wrappedAdapter;
         wrappedAdapter.registerDataSetObserver(mObserver);
