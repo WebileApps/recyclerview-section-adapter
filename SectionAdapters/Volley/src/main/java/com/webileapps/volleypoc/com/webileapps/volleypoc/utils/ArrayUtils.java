@@ -5,11 +5,11 @@ package com.webileapps.volleypoc.com.webileapps.volleypoc.utils;
  */
 public class ArrayUtils {
 
-    public static String join(String[] array, String delimeter) {
+    public static String join(String[] array, String delimiter) {
         StringBuilder sb = new StringBuilder();
         for (String str : array) {
             sb.append(str);
-            sb.append(delimeter);
+            sb.append(delimiter);
         }
         return sb.toString();
     }
