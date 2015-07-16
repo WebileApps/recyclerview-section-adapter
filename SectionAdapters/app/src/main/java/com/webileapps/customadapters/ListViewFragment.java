@@ -32,39 +32,6 @@ public class ListViewFragment extends PlacesFragment {
 
         ListView lv = (ListView) root.findViewById(R.id.list_view);
 
-
-
-
-        /*moviesAdapter = new SimpleSectionAdapter<Place>(getApplicationContext(),
-                R.layout.section_item, R.id.section_name) {
-
-
-            @Override
-            protected int getIndexOfSection(Place object) {
-                for (int i = 0; i < place_types.length; i++) {
-                    if (object.types.contains(place_types[i]))
-                        return i;
-                }
-                return -1;
-            }
-
-            @Override
-            protected String getSectionText(int sectionIndex) {
-                return place_types_text[sectionIndex];
-            }
-
-            @Override
-            protected View getListItemView(Place object, ViewGroup parent) {
-                View v = getInflater().inflate(R.layout.list_item, parent, false);
-                TextView tv = (TextView) v.findViewById(R.id.name);
-                tv.setText(object.name);
-                ImageView iv = (ImageView) v.findViewById(R.id.icon);
-                Picasso.with(getApplicationContext()).load(object.icon).fit().centerInside().into(iv);
-
-                return v;
-            }
-        }*/;
-
         placesAdapter = new PlaceAdapter();
 
         placesSectionAdapter = new SectionAdapter(placesAdapter) {
@@ -101,6 +68,36 @@ public class ListViewFragment extends PlacesFragment {
         lv.setAdapter(placesSectionAdapter);
 
         return root;
+
+                /*moviesAdapter = new SimpleSectionAdapter<Place>(getApplicationContext(),
+                R.layout.section_item, R.id.section_name) {
+
+
+            @Override
+            protected int getIndexOfSection(Place object) {
+                for (int i = 0; i < place_types.length; i++) {
+                    if (object.types.contains(place_types[i]))
+                        return i;
+                }
+                return -1;
+            }
+
+            @Override
+            protected String getSectionText(int sectionIndex) {
+                return place_types_text[sectionIndex];
+            }
+
+            @Override
+            protected View getListItemView(Place object, ViewGroup parent) {
+                View v = getInflater().inflate(R.layout.list_item, parent, false);
+                TextView tv = (TextView) v.findViewById(R.id.name);
+                tv.setText(object.name);
+                ImageView iv = (ImageView) v.findViewById(R.id.icon);
+                Picasso.with(getApplicationContext()).load(object.icon).fit().centerInside().into(iv);
+
+                return v;
+            }
+        }*/
     }
 
     @Override

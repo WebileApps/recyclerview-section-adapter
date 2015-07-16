@@ -41,7 +41,6 @@ public class RecyclerViewFragment extends PlacesFragment {
 
         sectionAdapter = new RecyclerViewSectionAdapter<RowAdapter>(mSectionHeaderAdapter, mRowAdapter) {
 
-
             @Override
             public int getIndexOfSection(Object place) {
 
@@ -86,7 +85,7 @@ public class RecyclerViewFragment extends PlacesFragment {
 
         @Override
         public int getItemCount() {
-            if(places == null)
+            if (places == null)
                 return 0;
             return places.size();
         }

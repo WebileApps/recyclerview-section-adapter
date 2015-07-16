@@ -34,9 +34,9 @@ public abstract class RecyclerViewSectionAdapter<RowAdapter extends RecyclerView
 
     /**
      *  Constructs section adapter for recycler view adapter
-     * @param sectionHeaderAdapter Adapter for section header view
-     * @param rowAdapter Adapter {@link android.support.v7.widget.RecyclerView.Adapter,com.webileapps.customadapters.RecyclerViewSectionAdapter.GetObject}
-     *                   to be sectioned
+     * @param sectionHeaderAdapter A {@link android.support.v7.widget.RecyclerView.Adapter} Adapter for section header view
+     * @param rowAdapter Adapter to be sectioned and should override {@link android.support.v7.widget.RecyclerView.Adapter} and implement {@link com.webileapps.customadapters.RecyclerViewSectionAdapter.GetObject}
+     *
      */
     public RecyclerViewSectionAdapter(RecyclerView.Adapter sectionHeaderAdapter, RowAdapter rowAdapter) {
 
