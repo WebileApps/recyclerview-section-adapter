@@ -34,9 +34,9 @@ public class DemoActivity extends AppCompatActivity implements PlacesFragment.Ac
         listViewFragment = new ListViewFragment();
         recyclerFragment = new RecyclerViewFragment();
 
-        getSupportFragmentManager().beginTransaction().add(R.id.fragment,listViewFragment).commit();
+        getSupportFragmentManager().beginTransaction().add(R.id.fragment,recyclerFragment).commit();
 
-        placesFragment = listViewFragment;
+        placesFragment = recyclerFragment;
         String location = "17.4416,78.3826";
 
         place_types = new String[]{"hospital", "bakery", "beauty_salon", "shopping_mall", "home_goods_store", "movie_theatre"};
