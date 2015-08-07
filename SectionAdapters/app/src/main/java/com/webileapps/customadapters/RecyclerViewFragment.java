@@ -3,6 +3,7 @@ package com.webileapps.customadapters;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import java.util.List;
 public class RecyclerViewFragment extends PlacesFragment {
 
 
+    private static final String TAG = "RecyclerViewFragment";
     private RowAdapter mRowAdapter;
     private SectionHeaderAdapter mSectionHeaderAdapter;
     private RecyclerViewSectionAdapter sectionAdapter;
@@ -54,8 +56,16 @@ public class RecyclerViewFragment extends PlacesFragment {
             }
         };
 
-        recyclerView.setAdapter(sectionAdapter);
+
+        HeaderFooterAdapter mHeaderFooterAdapter = new HeaderFooterAdapter(mRowAdapter);
+        mHeaderFooterAdapter.setHeaderAdapter(new HeaderAdapter("Google Places"));
+        mHeaderFooterAdapter.setFooterAdapter(new HeaderAdapter("End"));
+
+        recyclerView.setAdapter(mHeaderFooterAdapter);
         recyclerView.setLayoutManager(new VerticalLayoutManager());
+
+        //recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL));
+
         return root;
     }
 
@@ -77,6 +87,7 @@ public class RecyclerViewFragment extends PlacesFragment {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
+            Log.d(TAG,"Position "+position );
             Place place = places.get(position);
             Picasso.with(getActivity().getApplicationContext()).load(place.icon).fit().centerInside().into(holder.iv);
             holder.tv.setText(place.name);
@@ -86,7 +97,8 @@ public class RecyclerViewFragment extends PlacesFragment {
         public int getItemCount() {
             if (places == null)
                 return 0;
-            return places.size();
+            else
+                return places.size();
         }
 
         public void setData(List<Place> places) {
@@ -136,7 +148,7 @@ public class RecyclerViewFragment extends PlacesFragment {
 
         @Override
         public int getItemCount() {
-            return 0;
+            return 1;
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
@@ -151,6 +163,43 @@ public class RecyclerViewFragment extends PlacesFragment {
         }
     }
 
+
+    class HeaderAdapter extends RecyclerView.Adapter<HeaderAdapter.ViewHolder> {
+
+        private final String headerName;
+
+        public HeaderAdapter(String text) {
+            this.headerName = text;
+        }
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View itemView = LayoutInflater.from(parent.getContext()).
+                    inflate(R.layout.section_item, parent, false);
+            return new HeaderAdapter.ViewHolder(itemView);
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
+            holder.tv.setText(headerName);
+        }
+
+        @Override
+        public int getItemCount() {
+            return 1;
+        }
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+
+            TextView tv;
+
+            public ViewHolder(View itemView) {
+                super(itemView);
+                this.tv = (TextView) itemView.findViewById(R.id.section_name);
+
+            }
+        }
+    }
 
 }
 
