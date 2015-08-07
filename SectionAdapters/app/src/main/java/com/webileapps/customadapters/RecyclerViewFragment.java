@@ -62,6 +62,7 @@ public class RecyclerViewFragment extends PlacesFragment {
         mHeaderFooterAdapter.setFooterAdapter(new HeaderAdapter("End"));
 
         recyclerView.setAdapter(mHeaderFooterAdapter);
+        //recyclerView.setAdapter(sectionAdapter);
         recyclerView.setLayoutManager(new VerticalLayoutManager());
 
         //recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL));
