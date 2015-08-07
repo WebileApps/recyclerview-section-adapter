@@ -12,4 +12,14 @@
         android:title="Recycler View"
         app:showAsAction="withText" />
 
+    <item
+        android:id="@+id/staggered_recycler_view"
+        android:title="Staggered Recycler View"
+        app:showAsAction="withText" />
+
+    <item
+        android:id="@+id/quilt_view"
+        android:title="Quilt View"
+        app:showAsAction="withText" />
+
 </menu>

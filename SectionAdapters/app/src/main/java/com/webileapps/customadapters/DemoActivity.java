@@ -25,6 +25,8 @@ public class DemoActivity extends AppCompatActivity implements PlacesFragment.Ac
     private PlacesFragment placesFragment;
     private PlacesFragment recyclerFragment;
     private PlacesFragment listViewFragment;
+    private StaggeredRecyclerFragment staggeredRecyclerFragment;
+    private QuiltViewFragment quiltViewFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +35,8 @@ public class DemoActivity extends AppCompatActivity implements PlacesFragment.Ac
 
         listViewFragment = new ListViewFragment();
         recyclerFragment = new RecyclerViewFragment();
+        staggeredRecyclerFragment = new StaggeredRecyclerFragment();
+        quiltViewFragment = new QuiltViewFragment();
 
         getSupportFragmentManager().beginTransaction().add(R.id.fragment,recyclerFragment).commit();
 
@@ -83,6 +87,14 @@ public class DemoActivity extends AppCompatActivity implements PlacesFragment.Ac
             case R.id.list_view_btn:
                 placesFragment = listViewFragment;
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment,listViewFragment).commit();
+                break;
+            case R.id.staggered_recycler_view:
+                placesFragment = staggeredRecyclerFragment;
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment,staggeredRecyclerFragment).commit();
+                break;
+            case R.id.quilt_view:
+                placesFragment = quiltViewFragment;
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment,quiltViewFragment).commit();
                 break;
         }
 
